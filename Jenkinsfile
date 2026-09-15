@@ -1,6 +1,14 @@
 pipeline {
     agent any
 
+    parameters {
+        string(
+            name: 'IMAGE',
+            defaultValue: 'shrutikashikar/d6-2-app',
+            description: 'Docker image to scan'
+        )
+    }
+
     environment {
         DOCKER_IMAGE = 'shrutikashikar/d6-2-app'
     }
@@ -29,11 +37,13 @@ pipeline {
             steps {
                 sh '''
                     echo "=== Running Trivy vulnerability scan ==="
+                    echo "Scanning image: $IMAGE"
+
                     trivy image \
                         --severity CRITICAL \
                         --exit-code 1 \
                         --no-progress \
-                        "$DOCKER_IMAGE:$BUILD_NUMBER"
+                        "$IMAGE"
                 '''
             }
         }
