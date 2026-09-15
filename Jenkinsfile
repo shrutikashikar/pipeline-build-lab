@@ -16,13 +16,25 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'echo "Building application..."'
-                sh 'ls -la'
             }
         }
 
         stage('Docker Build') {
             steps {
                 sh 'docker build -t $DOCKER_IMAGE:$BUILD_NUMBER .'
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                sh '''
+                    echo "=== Running Trivy vulnerability scan ==="
+                    trivy image \
+                        --severity CRITICAL \
+                        --exit-code 1 \
+                        --no-progress \
+                        "$DOCKER_IMAGE:$BUILD_NUMBER"
+                '''
             }
         }
 
